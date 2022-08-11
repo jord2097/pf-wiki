@@ -15,47 +15,46 @@ exports.create = async function (req,res,next) {
     
     Document.findOne({title: req.params.title})
     .then( async ( result ) => {
-        if (!result) {
+        
             const document = new Document({
                 title: req.params.title,
                 content: req.body.content
             })
-            const revision = new Revision({
-                title: req.params.title
-            })        
-                   
-            document.save()            
-            revision.save() 
-            .then( () => res.send({ message: "Document saved successfully"}))      
-        } else {
-            const document = new Document({
-                title: req.params.title,
-                content: req.body.content
-            })
-            try {                
+
+            if (!result) {
+                const revision = new Revision({
+                    title: req.params.title
+                })
+                revision.save() 
+            }
+                 
+            try {
                 let newDocument = await document.save()                
                 const revObj = { 'docID': newDocument._id, 'timestamp': newDocument.timestamp }                
                 Revision.findOneAndUpdate(
                     {title: newDocument.title},
                     { $push: { 'revisions': revObj }},
-                    {safe: true, upsert: true}                    
-                )               
+                    {safe: true, upsert: true},
+                    function (err, model) {
+                        console.log(err)
+                    }                   
+                )       
             }
-            catch(err) {
+            catch (err) {
                 console.log(err)
             }
             finally {
-                res.send({message: "document saved"})
-            }
-            
-            
-
-            
-            
-
+                if (!result) {
+                    res.send({message: "New Document Saved Successfully!"})
+                } else {
+                    res.send({message: "Document Updated Successfully!"})
+                }
+                
+            }      
+                  
         }
 
-    })
+    )
 
     
 
@@ -64,4 +63,17 @@ exports.create = async function (req,res,next) {
     
 }
 
+exports.deleteAll =  async function (req,res,next){
+    if (req.params.confirm !== "yes") {
+        return res.send({message: `Are you sure you want to delete? Replace ${req.params.confirm} with yes`})
+    }
+    await Document.deleteMany()
+    res.send({message: 'All Events Deleted.'})
+}
 
+exports.byTimeStamp = async function (req,res,next){
+    Document.findOne({title: req.params.title, timestamp: req.params.timestamp})
+    .then( (document) => res.send(document))
+    
+
+}
