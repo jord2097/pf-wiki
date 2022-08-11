@@ -1,12 +1,12 @@
-import express from 'express';
-import dotenv from 'dotenv'
-import helmet from 'helmet'
-import morgan from 'morgan'
-import cors from 'cors'
-import bodyParser from 'body-parser'
-import mongoose from 'mongoose'
-import router from './router'
-const uri = "" // MongoDB URI
+const express = require('express');
+const dotenv = require('dotenv');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+const router = require('./router')
+const uri = "mongodb+srv://jord2097:cHBoXQZm7JHKTR2I@cluster0.hj5lqs6.mongodb.net/wiki?retryWrites=true&w=majority" // MongoDB URI
 
 dotenv.config()
 const port = process.env.PORT || 3000
@@ -16,18 +16,18 @@ const app = express()
 app.use(helmet())
 app.use(cors())
 app.use(morgan('combined'))
-app.use(router)
-app.use(bodyParser.json()) // parses and extracts a request's JSON body to req.body
+app.use(bodyParser.json())
 app.disable("x-powered-by") // keeps technologies used private
+app.use(router)
 
 // START
 let server
 let db
 try {
     // SERVER START
-    server = await app.listen(PORT)
+    server = app.listen(port)
     // DB START
-    db = await mongoose.connection
+    mongoose.connect(uri)
 }
 catch (err) {
     console.log(err)
