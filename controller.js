@@ -1,14 +1,29 @@
 const { Document } = require('./models/documents')
 const { Revision } = require('./models/revisions')
+const { ObjectId } = require('mongodb')
 
 exports.index = async function (req,res,next) {
     Document.find()
-    .then((documents) => res.send(documents))
+    .then((documents) => {
+        if (!documents) {
+            res.status(404).send({message: "No Documents Found"})
+        } else {
+            res.send(documents)
+        }
+        
+    })
 }
 
 exports.revisions = async function (req,res,next){
     Revision.findOne({title: req.params.title})
-    .then((revisionList) => res.send(revisionList))
+    .then((revisionList) => {
+        if (!revisionList) {
+            res.status(404).send({message: "No Document Found"})
+        } else {
+            res.send(revisionList)
+        }
+        
+    })
 }
 
 exports.create = async function (req,res,next) {
@@ -72,8 +87,37 @@ exports.deleteAll =  async function (req,res,next){
 }
 
 exports.byTimeStamp = async function (req,res,next){
-    Document.findOne({title: req.params.title, timestamp: req.params.timestamp})
-    .then( (document) => res.send(document))
-    
+    if (req.params.timestamp == "latest") {
+        let revList = await Revision.findOne({title: req.params.title})
+        let latestRev = revList.revisions[revList.revisions.length - 1]
+        console.log(latestRev)
+        Document.findOne({_id: latestRev.docID, timestamp: latestRev.timestamp})
+        .then( (document) => res.send(document))        
+    } else {
+        Document.findOne({title: req.params.title, timestamp: req.params.timestamp})
+        .then( (document) => {
+            if (!document) {
+                res.status(404).send({message: "No Document Found"})
+            } else {
+                res.send(document)
+            }
+            
+        }
+        
+        )   
+        
+    }  
+
+}
+
+exports.titles = async function (req,res,next) {
+    let IDList = []
+    let revList = await Revision.find()    
+    for (let i = 0; i < revList.length; i++) {
+        let latestRev = revList[i].revisions[revList[i].revisions.length - 1]       
+        let latestRevDoc = await Document.findOne({_id: latestRev.docID})
+        IDList.push(latestRevDoc)
+    }
+    res.send(IDList) 
 
 }
