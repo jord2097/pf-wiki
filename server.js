@@ -6,7 +6,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const router = require('./router')
-const uri = "mongodb+srv://jord2097:cHBoXQZm7JHKTR2I@cluster0.hj5lqs6.mongodb.net/wiki?retryWrites=true&w=majority" // MongoDB URI
+const uri = "mongodb+srv://passfort:Gl7GMEFmYxBCnNkv@cluster0.hj5lqs6.mongodb.net/wiki?retryWrites=true&w=majority" // MongoDB URI, database is specific to this project
 
 dotenv.config()
 const port = process.env.PORT || 3000
