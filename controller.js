@@ -6,19 +6,19 @@ exports.index = async function (req,res,next) {
     Document.find()
     .then((documents) => {
         if (!documents) {
-            res.status(404).send({message: "No Documents Found"})
+            res.status(404).send({message: "No Documents Found in the Wiki"})
         } else {
             res.send(documents)
         }
         
     })
-}
+} // list of all revisions of all documents - unused
 
 exports.revisions = async function (req,res,next){
     Revision.findOne({title: req.params.title})
     .then((revisionList) => {
         if (!revisionList) {
-            res.status(404).send({message: "No Document Found"})
+            res.status(404).send({message: "No Document Found with that Title"})
         } else {
             res.send(revisionList)
         }
@@ -26,11 +26,10 @@ exports.revisions = async function (req,res,next){
     })
 }
 
-exports.create = async function (req,res,next) {
+exports.create = async function (req,res,next) {rs
     
     Document.findOne({title: req.params.title})
-    .then( async ( result ) => {
-        
+    .then( async ( result ) => {        
             const document = new Document({
                 title: req.params.title,
                 content: req.body.content
@@ -57,15 +56,14 @@ exports.create = async function (req,res,next) {
             }
             catch (err) {
                 console.log(err)
-            }
-            finally {
-                if (!result) {
-                    res.send({message: "New Document Saved Successfully!"})
-                } else {
-                    res.send({message: "Document Updated Successfully!"})
-                }
-                
-            }      
+                res.send(err).status(401)
+            }                           
+            if (!result) {
+                res.send({message: "New Document Saved Successfully!"})
+            } else {
+                res.send({message: "Document Updated Successfully!"})
+            }          
+                 
                   
         }
 
@@ -84,7 +82,7 @@ exports.deleteAll =  async function (req,res,next){
     }
     await Document.deleteMany()
     res.send({message: 'All Events Deleted.'})
-}
+} // for use in development only
 
 exports.byTimeStamp = async function (req,res,next){
     if (req.params.timestamp == "latest") {
@@ -97,7 +95,7 @@ exports.byTimeStamp = async function (req,res,next){
         Document.findOne({title: req.params.title, timestamp: req.params.timestamp})
         .then( (document) => {
             if (!document) {
-                res.status(404).send({message: "No Document Found"})
+                res.status(404).send({message: "No Document Found. Check the Timestamp is correct."})
             } else {
                 res.send(document)
             }
@@ -118,6 +116,12 @@ exports.titles = async function (req,res,next) {
         let latestRevDoc = await Document.findOne({_id: latestRev.docID})
         IDList.push(latestRevDoc)
     }
-    res.send(IDList) 
+    if(IDList.length !== 0) {
+        res.send(IDList)
+    } else {
+        res.status(404).send({message: "No Documents Found, the wiki may be empty"})
+    }
+    
+     
 
 }
