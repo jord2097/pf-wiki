@@ -16,5 +16,5 @@
 - [x] View latest version of a document
 - [x] Post a new document or update an existing document with a new revision
 - [x] Error handling for common errors - such as invalid titles, incorrect timestamp format and where there are no results.
-- [ ] Testing using Jest/Supertest, to ensure proper error handling
+- [ ] Testing using Jest and Supertest, to ensure proper error handling
 - [ ] Dynamic timestamp search e.g. two versions at 1pm/3pm, searching 2pm provides 1pm as result
