@@ -26,7 +26,7 @@ exports.revisions = async function (req,res,next){
     })
 }
 
-exports.create = async function (req,res,next) {rs
+exports.create = async function (req,res,next) {
     
     Document.findOne({title: req.params.title})
     .then( async ( result ) => {        
