@@ -1,4 +1,4 @@
-### Wiki Coding Task
+### Wiki API
 
 - Used a personal reference template for a basic Node.js REST server, which can be found [here](https://github.com/jord2097/rest_ref)
 
