@@ -15,7 +15,7 @@ exports.index = async function (req,res,next) {
 } // list of all revisions of all documents - unused
 
 exports.revisions = async function (req,res,next){
-    Revision.findOne({title: req.params.title})
+    /* Revision.find({title: req.params.title})
     .then((revisionList) => {
         if (!revisionList) {
             res.status(404).send({message: "No Document Found with that Title"})
@@ -23,24 +23,52 @@ exports.revisions = async function (req,res,next){
             res.send(revisionList)
         }
         
-    })
+    }) */
+
+    const document = await Document.findOne({title: req.params.title})
+    const revisionIDs = document.revisions
+    const revisions = []
+    for (let i = 0; i < revisionIDs.length; i++) {
+        const revision = await Revision.findOne({_id: revisionIDs[i]})
+        revisions.push(revision)
+    }
+    res.send(revisions)
+
 }
 
 exports.create = async function (req,res,next) {
-    
-    Document.findOne({title: req.params.title})
-    .then( async ( result ) => {        
-            const document = new Document({
-                title: req.params.title,
-                content: req.body.content
-            })
+    const revision = new Revision({
+        content: req.body.content
+        })
+        const savedRev = await revision.save()        
+        
+    const existingDoc = await Document.findOne({title: req.params.title})
 
-            if (!result) {
-                const revision = new Revision({
-                    title: req.params.title
-                })
-                revision.save() 
-            }
+    console.log("Existing Doc",existingDoc)
+
+    let document;
+
+    if (existingDoc === null) {
+        document = new Document({
+            title: req.params.title,
+            revisions: []               
+        })        
+    } else {
+        document = existingDoc
+    }
+    document.revisions.push(savedRev)
+    document.save()
+    res.status(201).send(document)
+
+    
+    
+    /* Document.findOne({title: req.params.title})
+    .then( async ( result ) => {
+
+            
+
+            
+            
                  
             try {
                 let newDocument = await document.save()                
@@ -67,7 +95,7 @@ exports.create = async function (req,res,next) {
                   
         }
 
-    )
+    ) */
 
     
 
@@ -109,7 +137,7 @@ exports.byTimeStamp = async function (req,res,next){
 }
 
 exports.titles = async function (req,res,next) {
-    let IDList = []
+    /* let IDList = []
     let revList = await Revision.find()    
     for (let i = 0; i < revList.length; i++) {
         let latestRev = revList[i].revisions[revList[i].revisions.length - 1]       
@@ -120,7 +148,14 @@ exports.titles = async function (req,res,next) {
         res.send(IDList)
     } else {
         res.status(404).send({message: "No Documents Found, the wiki may be empty"})
-    }
+    } */
+
+    const titleList = await Document.find().select('title')
+    const mappedList = titleList.map(x => x.title)
+    res.send(mappedList)
+    
+
+
     
      
 
